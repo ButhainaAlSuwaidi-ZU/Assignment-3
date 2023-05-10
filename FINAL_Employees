@@ -1,0 +1,471 @@
+# import statements for tkinter (GUI) and pickle to store
+import tkinter as tk
+from tkinter import ttk, messagebox
+import pickle
+
+# This is the employee class, the manager and salesperson will inherit from this
+class Employee:
+    '''
+       Employee class with attributes and fucntions to show calculate commissions function
+       and to display information
+       '''
+    # Initialize attributes for employee ID, position, name, age, date of birth, passport details, and an empty list of sales
+    def __init__(self, employee_id, position, name, age, date_of_birth, passport_details):
+        self.employee_id = employee_id
+        self.position = position
+        self.name = name
+        self.age = age
+        self.date_of_birth = date_of_birth
+        self.passport_details = passport_details
+        self.sales = []
+
+    def calculate_commission(self):
+        # Placeholder method for calculating commission
+        pass
+
+    def display_employee_details(self):
+        return f"ID: {self.employee_id}\nName: {self.name}\nAge: {self.age}\nDOB: {self.date_of_birth}\nPassport: {self.passport_details}\nPosition: {self.position}"
+
+class Salesperson(Employee):
+    '''
+    Salesperson, calculating comssions, adding sales, with attributes that are inherited and getting DOB
+    '''
+    def __init__(self, employee_id, position, name, age, date_of_birth, passport_details, manager=None):
+        # Call parent class's __init__ method and set the manager attribute
+        super().__init__(employee_id, position, name, age, date_of_birth, passport_details)
+        self.manager = manager
+
+    def add_sale(self, car):
+        # Adding a sale to the sales list and notify the manager
+        self.sales.append(car)
+        self.manager.add_sale(car)
+
+    def display_sales_details(self):
+        # Returning formatted string containing salesperson's sales details
+        sales_str = f"Salesperson: {self.name}\nTotal Sales: {len(self.sales)}\nCars Sold:"
+        for sale in self.sales:
+            sales_str += f"\n- {sale.car_name} ({sale.car_id})"
+        return sales_str
+
+    def get_date_of_birth(self):
+        # Method for returning the salesperson's date of birth
+        return self.date_of_birth.get()
+
+class Manager(Employee):
+    '''
+   Manager class with attributes and fucntions to add sales person, sales and commisions
+    '''
+    def __init__(self, employee_id, position, name, age, date_of_birth, passport_details):
+        # Calling parent class's __init__ method and setting the salespersons attribute
+        super().__init__(employee_id, position, name, age, date_of_birth, passport_details)
+        self.salespersons = []
+
+    def add_salesperson(self, salesperson):
+        # Adding a salesperson to the salespersons list
+        self.salespersons.append(salesperson)
+
+    def add_sale(self, car):
+        # Add a sale to the sales list
+        self.sales.append(car)
+
+    def calculate_team_commission(self):
+        # Placeholder for calculating team commission
+        pass
+
+class Car:
+    '''
+    Super class with all the information that is to be inhertied by the other car classes 
+    Like carID, name, type...
+    '''
+    def __init__(self, car_name, car_id, car_type, sold_price, fuel_capacity, max_speed, color):
+        # Initialize attributes for car name, car ID, car type, sold price, fuel capacity, max speed, and color
+        self.car_name = car_name
+        self.car_id = car_id
+        self.car_type = car_type
+        self.sold_price = sold_price
+        self.fuel_capacity = fuel_capacity
+        self.max_speed = max_speed
+        self.color = color
+
+    def display_car_details(self):
+        return f"ID: {self.car_id}\nName: {self.car_name}\nType: {self.car_type}\nSold Price: {self.sold_price}\nFuel Capacity: {self.fuel_capacity}\nMax Speed: {self.max_speed}\nColor: {self.color}"
+
+class Hatchback(Car):
+    '''
+    Class of car inherited from Car 
+    '''
+    def __init__(self, car_name, car_id, car_type, sold_price, fuel_capacity, max_speed, color, cargo_capacity):
+        # Call parent class's __init__ method and set the cargo capacity attribute
+        super().__init__(car_name, car_id, car_type, sold_price, fuel_capacity, max_speed, color)
+        self.cargo_capacity = cargo_capacity
+
+class Sedan(Car):
+    '''
+    Class of car inherited from Car 
+    '''
+    def __init__(self, car_name, car_id, car_type, sold_price, fuel_capacity, max_speed, color):
+        # Call parent class's __init__ method and set the cargo capacity attribute
+        super().__init__(car_name, car_id, car_type,  sold_price, fuel_capacity, max_speed, color)
+
+
+class SUV(Car):
+    '''
+    Class of car inherited from Car 
+    '''
+    def __init__(self, car_name, car_id, car_type, sold_price, fuel_capacity, max_speed, color,
+                 amount_of_seats, cargo_capacity):
+        # Call parent class's __init__ method and set the amount of seats and cargo capacity attributes
+        super().__init__(car_name, car_id, car_type, sold_price, fuel_capacity, max_speed, color)
+        self.amount_of_seats = amount_of_seats
+        self.cargo_capacity = cargo_capacity
+
+class Dealership:
+    '''
+    Dealership class with alot of functions to add employees, modify and delete them,
+    to find, modify and delete cars and to keep track of sales
+    '''
+    def __init__(self, name):
+        # Initializing attributes for dealership name, employees list, and cars list
+        self.name = name
+        self.employees = []
+        self.cars = []
+
+    def add_employee(self, employee):
+        # Adding an employee to the employees list
+        self.employees.append(employee)
+
+    # To delete employees and raising error if the employee is not found
+    def delete_employee(self, employee_id):
+        for employee in self.employees:
+            if employee.employee_id == employee_id:
+                self.employees.remove(employee)
+                return
+        raise ValueError("Employee ID not found.")
+
+    # returing the employees
+    def get_employees(self):
+        return self.employees
+
+    # Modifying the employees information if we want to change it
+    # please note when trying this to not click many times in the field.
+    # KWARGS used so it is more flexible and we can use more keywords
+    def modify_employee(self, employee_id, **kwargs):
+        for employee in self.employees:
+            if employee.employee_id == employee_id:
+                for key, value in kwargs.items():
+                    setattr(employee, key, value)
+                return
+        raise ValueError("Employee ID not found.")
+
+    # Adding cars using append.
+    def add_car(self, car):
+        self.cars.append(car)
+
+    # Deleting cars using .remove
+    def delete_car(self, car_id):
+        for car in self.cars:
+            if car.car_id == car_id:
+                self.cars.remove(car)
+                return
+        raise ValueError("Car ID not found.")
+
+        # Modifying in a simalar way to the employee
+    def modify_car(self, car_id, **kwargs):
+        for car in self.cars:
+            if car.car_id == car_id:
+                for key, value in kwargs.items():
+                    setattr(car, key, value)
+                return
+        raise ValueError("Car ID not found.")
+
+    # finding the employees using self.employees
+    def find_employee(self, employee_id):
+        for employee in self.employees:
+            if employee.employee_id == employee_id:
+                return employee
+        raise ValueError("Employee ID not found.")
+
+    # We find the cars in a similar way too.
+    def find_car(self, car_id):
+        for car in self.cars:
+            if car.car_id == car_id:
+                return car
+        raise ValueError("Car ID not found.")
+
+    # Recording sales using isinstance and raising an error if anyone tries to record sales other than who is allowed
+    def record_sale(self, employee_id, car_id):
+        employee = self.find_employee(employee_id)
+        car = self.find_car(car_id)
+        if isinstance(employee, Salesperson):
+            employee.add_sale(car)
+        else:
+            raise ValueError("Only salespersons can record sales.")
+
+    # Displaying details of employees
+    def display_employee_details(self, employee_id):
+        employee = self.find_employee(employee_id)
+        return employee.display_employee_details()
+
+    # Displaying details of cars
+    def display_car_details(self, car_id):
+        car = self.find_car(car_id)
+        return car.display_car_details()
+
+    # Displaying details of employee sales
+    # If the employee object is an instance of Salesperson,
+    # we call the display_sales_details method on that object to get a string
+    # containing their sales details.
+    # Otherwise, we raise a ValueError
+    def display_employee_sales_details(self, employee_id):
+        employee = self.find_employee(employee_id)
+        if isinstance(employee, Salesperson):
+            return employee.display_sales_details()
+        else:
+            raise ValueError("Only salespersons have sales details.")
+
+# This is for the pickling, we initialize filepath,
+# then we save to it by dumping
+class FileHandler:
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def save_to_file(self, data):
+        with open(self.file_path, 'wb') as file:
+            pickle.dump(data, file)
+
+# This is to retrive what we have saved.
+    def load_from_file(self):
+        try:
+            with open(self.file_path, "rb") as file:
+                return pickle.load(file)
+        except EOFError:
+            raise ValueError(f"Error: input file '{self.file_path}' is empty or corrupt")
+
+# This is the GUI class, we initialize then label it.
+class DealershipGUI(tk.Frame):
+    '''
+    GUI information is here like placing, adding and removing employee, ID information and
+    the listbox and labels are here
+    '''
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.master.title("Dealership Employee Management System")
+        self.master.geometry("800x600")
+        self.file_handler = FileHandler("Employees.bin")
+        self.create_widgets()
+        self.load_data()
+
+    # This has all the widgets using the grid placement method as it is both flexible and clean
+    # We create widget labels and entries for all the employee information
+    def create_widgets(self):
+        # Create labels, entry fields, and buttons for adding and deleting employees and cars
+        self.employee_id_label = tk.Label(self, text="Employee ID:")
+        self.employee_id_label.grid(row=0, column=0, padx=(10, 5), pady=(10, 5), sticky=tk.W)
+
+        self.employee_id_entry = tk.Entry(self)
+        self.employee_id_entry.grid(row=0, column=1, padx=(5, 10), pady=(10, 5), sticky=tk.W)
+
+        self.employee_name_label = tk.Label(self, text="Employee Name:")
+        self.employee_name_label.grid(row=1, column=0, padx=(10, 5), pady=(5, 5), sticky=tk.W)
+
+        self.employee_name_entry = tk.Entry(self)
+        self.employee_name_entry.grid(row=1, column=1, padx=(5, 10), pady=(5, 5), sticky=tk.W)
+
+        self.employee_age_label = tk.Label(self, text="Age:")
+        self.employee_age_label.grid(row=2, column=0, padx=(10, 5), pady=(5, 5), sticky=tk.W)
+
+        self.employee_age_entry = tk.Entry(self)
+        self.employee_age_entry.grid(row=2, column=1, padx=(5, 10), pady=(5, 5), sticky=tk.W)
+        # Add Edit Employee button
+        self.edit_employee_button = tk.Button(self, text="Edit Employee", command=self.edit_employee)
+        self.edit_employee_button.grid(row=4, column=2, padx=(10, 10), pady=(10, 5), sticky=tk.W)
+
+        self.employee_dob_label = tk.Label(self, text="Date of Birth:")
+        self.employee_dob_label.grid(row=4, column=0, padx=(10, 5), pady=(5, 5), sticky=tk.W)
+
+        self.employee_dob_entry = tk.Entry(self)
+        self.employee_dob_entry.grid(row=4, column=1, padx=(5, 10), pady=(5, 5), sticky=tk.W)
+
+        self.employee_passport_label = tk.Label(self, text="Passport Details:")
+        self.employee_passport_label.grid(row=5, column=0, padx=(10, 5), pady=(5, 5), sticky=tk.W)
+
+        self.employee_passport_entry = tk.Entry(self)
+        self.employee_passport_entry.grid(row=5, column=1, padx=(5, 10), pady=(5, 5), sticky=tk.W)
+
+        self.employee_position_label = tk.Label(self, text="Position, Case Sensitive (Manager or Salesperson): ")
+        self.employee_position_label.grid(row=3, column=0, padx=(10, 5), pady=(5, 5), sticky=tk.W)
+
+        self.employee_position_entry = tk.Entry(self)
+        self.employee_position_entry.grid(row=3, column=1, padx=(5, 10), pady=(5, 5), sticky=tk.W)
+
+        self.add_employee_button = tk.Button(self, text="Add Employee", command=self.add_employee)
+        self.add_employee_button.grid(row=1, column=2, padx=(10, 10), pady=(10, 5), sticky=tk.W)
+
+        self.delete_employee_button = tk.Button(self, text="Delete Employee", command=self.delete_employee)
+        self.delete_employee_button.grid(row=2, column=2, padx=(10, 10), pady=(10, 5), sticky=tk.W)
+
+        self.show_employee_button = tk.Button(self, text="Show Employee", command=self.show_employee_details)
+        self.show_employee_button.grid(row=3, column=2, padx=(10, 10), pady=(10, 5), sticky=tk.W)
+
+        # Create a listbox to display the list of employees, so we can click and it shows
+        self.employee_listbox_label = tk.Label(self, text="Employee List:")
+        self.employee_listbox_label.grid(row=6, column=0, padx=(10, 5), pady=(10, 5), sticky=tk.W)
+
+        self.employee_listbox = tk.Listbox(self)
+        self.employee_listbox.grid(row=7, column=0, columnspan=4, padx=(10, 10), pady=(5, 10),
+                                   sticky=tk.W + tk.E + tk.N + tk.S)
+
+        # Bind the listbox to a function that displays the details of the selected employee
+        self.employee_listbox.bind("<<ListboxSelect>>", self.display_selected_employee_details)
+
+        # Add a scrollbar to the employee listbox
+        self.employee_listbox_scrollbar = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.employee_listbox.yview)
+        self.employee_listbox_scrollbar.grid(row=6, column=4, pady=(5, 10), sticky=tk.N + tk.S)
+
+        self.employee_listbox.config(yscrollcommand=self.employee_listbox_scrollbar.set)
+
+        # Set the column and row weights to make the listbox expandable
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(6, weight=1)
+
+        self.pack(fill=tk.BOTH, expand=1)
+
+    # Loading the information from the listbox
+    def load_data(self):
+        try:
+            self.dealership = self.file_handler.load_from_file()
+            self.update_employee_listbox()
+        except FileNotFoundError:
+            self.dealership = Dealership("Asra's Cars")
+
+    def save_data(self):
+        self.file_handler.save_to_file(self.dealership)
+
+    # GUI functions to interact with the classes and their methods
+    # This one is to add the employees and their information
+    def add_employee(self):
+        try:
+            employee_id = int(self.employee_id_entry.get())
+            name = self.employee_name_entry.get()
+            age = int(self.employee_age_entry.get())
+            position = self.employee_position_entry.get()
+            passport_details = self.employee_passport_entry.get()
+            date_of_birth = self.employee_dob_entry.get()
+
+            # The possible positions.
+            if position == "Salesperson":
+                employee = Salesperson(employee_id, position, name, age, date_of_birth, passport_details)
+            elif position == "Manager":
+                employee = Manager(employee_id, position, name, age, date_of_birth, passport_details)
+            else:
+                messagebox.showerror("Error", "Invalid position.")
+                return
+
+            self.dealership.add_employee(employee)
+            self.update_employee_listbox()
+            self.save_data()
+            messagebox.showinfo("Success", f"{position} added successfully.")
+
+        except ValueError:
+            messagebox.showerror("Error", "Invalid input.")
+
+    # Saving when we are done
+    def save_employees(self):
+        with open('employees.dat', 'wb') as file:
+            pickle.dump(self.employees, file)
+
+    # Deleting .delete
+    # Then we update the listbox
+    def delete_employee(self):
+        try:
+            index = self.employee_listbox.curselection()[0]
+            employee = self.dealership.get_employees()[index]
+            self.dealership.delete_employee(employee.employee_id)
+            self.update_employee_listbox()
+            self.save_data()
+            messagebox.showinfo("Success", "Employee deleted successfully.")
+        except IndexError:
+            messagebox.showerror("Error", "Please select an employee to delete.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
+    # This is so we can edit the information without deleting the whole employee
+    def edit_employee(self):
+        try:
+            index = self.employee_listbox.curselection()[0]
+            employee = self.dealership.get_employees()[index]
+
+            employee_id = int(self.employee_id_entry.get())
+            name = self.employee_name_entry.get()
+            age = int(self.employee_age_entry.get())
+            position = self.employee_position_entry.get()
+            passport_details = self.employee_passport_entry.get()
+            date_of_birth = self.employee_dob_entry.get()
+
+            self.dealership.modify_employee(
+                                            employee_id=employee_id,
+                                            name=name,
+                                            age=age,
+                                            position=position,
+                                            passport_details=passport_details,
+                                            date_of_birth=date_of_birth)
+
+            self.update_employee_listbox()
+            self.save_data()
+            messagebox.showinfo("Success", "Employee edited successfully.")
+
+        except IndexError:
+            messagebox.showerror("Error", "Please select an employee to edit.")
+        except ValueError:
+            messagebox.showerror("Error", "Invalid input.")
+
+    # When we select using the listbox we can see the employee information
+    # We just use the class and the information from it and put it in the entry
+    def display_selected_employee_details(self, event):
+        try:
+            index = self.employee_listbox.curselection()[0]
+            employee = self.dealership.get_employees()[index]
+
+            self.employee_id_entry.delete(0, tk.END)
+            self.employee_id_entry.insert(0, str(employee.employee_id))
+
+            self.employee_name_entry.delete(0, tk.END)
+            self.employee_name_entry.insert(0, employee.name)
+
+            self.employee_age_entry.delete(0, tk.END)
+            self.employee_age_entry.insert(0, str(employee.age))
+
+            self.employee_position_entry.delete(0, tk.END)
+            self.employee_position_entry.insert(0, employee.position)
+
+            self.employee_dob_entry.delete(0, tk.END)
+            self.employee_dob_entry.insert(0, str(employee.date_of_birth))
+
+            self.employee_passport_entry.delete(0, tk.END)
+            self.employee_passport_entry.insert(0, employee.passport_details)
+
+        except IndexError:
+            messagebox.showerror("Error", "Please select an employee.")
+
+    # updating listbox
+    def update_employee_listbox(self):
+        self.employee_listbox.delete(0, tk.END)
+        for employee in self.dealership.employees:
+            self.employee_listbox.insert(tk.END, employee.name)
+
+    # Showing the employee information with index error if not clicked on correctly
+    def show_employee_details(self):
+        try:
+            index = self.employee_listbox.curselection()[0]
+            employee_id = self.dealership.employees[index].employee_id
+            employee_details = self.dealership.display_employee_details(employee_id)
+            messagebox.showinfo("Employee Details", employee_details)
+        except IndexError:
+            messagebox.showerror("Error", "Please select an employee to show details.")
+
+
+# Mainloop to show GUI and use Tkinter
+root = tk.Tk()
+app = DealershipGUI(master=root)
+app.mainloop()
