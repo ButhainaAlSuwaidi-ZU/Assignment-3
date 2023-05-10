@@ -1,0 +1,357 @@
+
+# Importing pick to save file information
+import pickle
+
+# Employee Base Class
+class Employee:
+    '''
+    Employee class with attributes and fucntions to show calculate commissions function
+    and to display information
+    '''
+
+    def __init__(self, employee_id, position, name, age, date_of_birth, passport_details):
+        self.employee_id = employee_id
+        self.position = position
+        self.name = name
+        self.age = age
+        self.date_of_birth = date_of_birth
+        self.passport_details = passport_details
+        self.sales = []
+
+    # Calculating commission, this is not used yet
+    def calculate_commission(self):
+        pass
+
+    # displaying employee details suing f-sting with new lines
+    def display_employee_details(self):
+        return f"ID: {self.employee_id}\nName: {self.name}\nAge: {self.age}\nDOB: {self.date_of_birth}\nPassport: {self.passport_details}\nPosition: {self.position}"
+
+# inherted class
+class Salesperson(Employee):
+    '''
+    Salesperson, calculating comssions, adding sales, with attributes that are inherited and getting DOB
+    '''
+
+    def __init__(self, employee_id, position, name, age, date_of_birth, passport_details, manager=None):
+        super().__init__(employee_id, position, name, age, date_of_birth, passport_details)
+        self.manager = manager
+        self.commission = 0
+
+    # when printing class is called, this data shows
+    def __repr__(self):
+        return f"ID: {self.employee_id}\nName: {self.name}\nPosition: {self.position  }\nAge: {self.age}\nDate of Birth: {self.date_of_birth}\nPassport Details: {self.passport_details}"
+
+    # commission rate and calculating for salesperson
+    commission_rate = 0.065
+
+    def calculate_commission(self):
+        return self.commission
+
+    # adding sale for salesperson,
+    # Including the commission we wrote above
+    def add_sale(self, car):
+        self.sales.append(car)
+        self.commission += car.calculate_profit() * self.commission_rate
+        self.manager.add_sale(car)
+
+    #displaying sales details
+    def display_sales_details(self):
+        sales_str = f"Salesperson: {self.name}\nTotal Sales: {len(self.sales)}\nCars Sold:"
+        for sale in self.sales:
+            sales_str += f"\n- {sale.car_name} ({sale.car_id})"
+        return sales_str
+
+    # gettign DOB usign getters
+    def get_date_of_birth(self):
+        return self.date_of_birth.get()
+
+class Manager(Employee):
+    '''
+    Inhertied class, calucluteing commission,
+    addings salesperson to them, adding sales, and calcualting team commissions.
+    '''
+
+    # Initializng information
+    def __init__(self, employee_id, position, name, age, date_of_birth, passport_details):
+        super().__init__(employee_id, position, name, age, date_of_birth, passport_details)
+        self.salespersons = []
+        self.commission = 0
+
+    commission_rate = 0.035
+
+    # Calculating commissions
+    def calculate_commission(self):
+        return self.commission
+
+    # Adding salesperson to them
+    def add_salesperson(self, salesperson):
+        self.salespersons.append(salesperson)
+
+    # Adding sales of car
+    def add_sale(self, car):
+        self.sales.append(car)
+        self.commission += car.calculate_profit() * self.commission_rate
+
+    def calculate_team_commission(self):
+        pass
+
+class Car:
+    '''
+    Main class with many essential information on cars like price, id and type.
+    Also to calculate profit
+    '''
+    def __init__(self, car_name, car_id, car_type, sold_price, cost_price, fuel_capacity, max_speed, color):
+        self.car_name = car_name
+        self.car_id = car_id
+        self.car_type = car_type
+        self.sold_price = sold_price
+        self.cost_price = cost_price
+        self.fuel_capacity = fuel_capacity
+        self.max_speed = max_speed
+        self.color = color
+
+        # To make printing easier and cleaner
+        def __repr__(self):
+            return f"ID: {self.car_id}\nName: {self.car_name}\nType: {self.car_type}\nSold Price: {self.sold_price}\nFuel Capacity: {self.fuel_capacity}\nMax Speed: {self.max_speed}\nColor: {self.color}"
+
+    # Calculating profit
+    def calculate_profit(self):
+        return self.sold_price - self.cost_price
+
+    # Displaying the car information
+    def display_car_details(self):
+        return f"ID: {self.car_id}\nName: {self.car_name}\nType: {self.car_type}\nSold Price: {self.sold_price}\nFuel Capacity: {self.fuel_capacity}\nMax Speed: {self.max_speed}\nColor: {self.color}"
+
+class Hatchback(Car):
+    '''
+    Class of car inherited from Car with a unique attributes
+    '''
+    def __init__(self, car_name, car_id, car_type, sold_price, cost_price, fuel_capacity, max_speed, color, cargo_capacity):
+        super().__init__(car_name, car_id, car_type, sold_price, cost_price, fuel_capacity, max_speed, color)
+        self.cargo_capacity = cargo_capacity
+
+    # When printing class is called, this data shows
+    def __repr__(self):
+        return f"ID: {self.car_id}\nName: {self.car_name}\nType: {self.car_type}\nSold Price: {self.sold_price}\nFuel Capacity: {self.fuel_capacity}\nMax Speed: {self.max_speed}\nColor: {self.color}"
+
+
+class Sedan(Car):
+    '''
+    Class of car inherited from Car with a unique attributes
+    '''
+    # Same as the previous class, intiizialing, adding specific attribute to Car and printing
+    def __init__(self, car_name, car_id, car_type, sold_price, cost_price, fuel_capacity, max_speed, color):
+        super().__init__(car_name, car_id, car_type,  sold_price, cost_price, fuel_capacity, max_speed, color)
+
+    def __repr__(self):
+        return f"ID: {self.car_id}\nName: {self.car_name}\nType: {self.car_type}\nSold Price: {self.sold_price}\nFuel Capacity: {self.fuel_capacity}\nMax Speed: {self.max_speed}\nColor: {self.color}"
+
+
+class SUV(Car):
+    '''
+    Class of car inherited from Car with a unique attributes
+    '''
+
+    # Same as the previous class, intiizialing, adding specific attribute to Car and printing
+    def __init__(self, car_name, car_id, car_type, sold_price, cost_price, fuel_capacity, max_speed, color,
+                 amount_of_seats, cargo_capacity):
+        super().__init__(car_name, car_id, car_type, sold_price, cost_price, fuel_capacity, max_speed, color)
+        self.amount_of_seats = amount_of_seats
+        self.cargo_capacity = cargo_capacity
+
+    def __repr__(self):
+        return f"ID: {self.car_id}\nName: {self.car_name}\nType: {self.car_type}\nSold Price: {self.sold_price}\nFuel Capacity: {self.fuel_capacity}\nMax Speed: {self.max_speed}\nColor: {self.color}"
+
+
+class Dealership:
+    '''
+    Dealership class with alot of functions to add employees, modify and delete them,
+    to find, modify and delete cars
+    and to keep track of sales
+    '''
+    # Initialzing
+    def __init__(self, name):
+        self.name = name
+        self.employees = []
+        self.cars = []
+
+    # Adding information
+    def add_employee(self, employee):
+        self.employees.append(employee)
+
+    # Deleting employees using the .remove
+    def delete_employee(self, employee_id):
+        for employee in self.employees:
+            if employee.employee_id == employee_id:
+                self.employees.remove(employee)
+                return
+        raise ValueError("Employee ID not found.")
+
+    # Getting employees
+    def get_employees(self):
+        return self.employees
+
+    def modify_employee(self, employee_id, **kwargs):
+        for employee in self.employees:
+            if employee.employee_id == employee_id:
+                for key, value in kwargs.items():
+                    setattr(employee, key, value)
+                return
+        raise ValueError("Employee ID not found.")
+
+    # Adding cars to dealership
+    def add_car(self, car):
+        self.cars.append(car)
+
+    # Deleating cars from dealership
+    def delete_car(self, car_id):
+        for car in self.cars:
+            if car.car_id == car_id:
+                self.cars.remove(car)
+                return
+        raise ValueError("Car ID not found.")
+
+    # Finding employees based on ID
+    def find_employee(self, employee_id):
+        for employee in self.employees:
+            if employee.employee_id == employee_id:
+                return employee
+        raise ValueError("Employee ID not found.")
+
+    # Finding cars based on ID
+    def find_car(self, car_id):
+        for car in self.cars:
+            if car.car_id == car_id:
+                return car
+        raise ValueError("Car ID not found.")
+
+    # Recording sales of employees and car IDs
+    def record_sale(self, employee_id, car_id):
+        employee = self.find_employee(employee_id)
+        car = self.find_car(car_id)
+        if isinstance(employee, Salesperson):
+            employee.add_sale(car)
+        else:
+            raise ValueError("Only salespersons can record sales.")
+
+# Dispalying employee and car details
+    def display_employee_details(self, employee_id):
+        employee = self.find_employee(employee_id)
+        return employee.display_employee_details()
+
+    def display_car_details(self, car_id):
+        car = self.find_car(car_id)
+        return car.display_car_details()
+
+    # sales details with value error
+    def display_employee_sales_details(self, employee_id):
+        employee = self.find_employee(employee_id)
+        if isinstance(employee, Salesperson):
+            return employee.display_sales_details()
+        else:
+            raise ValueError("Only salespersons have sales details.")
+
+# This returns a formatted string with the information we gathered regaring the dealership and employees
+    # we Loop through the employees and print and do the same for the cars
+    def __str__(self):
+        employee_list = "\n".join([str(employee) for employee in self.employees])
+        car_list = "\n".join([str(car) for car in self.cars])
+        return f"Dealership Name: {self.name}\n\nEmployees:\n{employee_list}\n\nCars:\n{car_list}"
+
+# Again, we need this to pickle the information we have
+class FileHandler:
+    '''
+    Pickled class to store and open data
+    '''
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def save_to_file(self, data):
+        with open(self.file_path, 'wb') as file:
+            pickle.dump(data, file)
+
+    def load_from_file(self):
+        try:
+            with open(self.file_path, "rb") as file:
+                return pickle.load(file)
+        except EOFError:
+            raise ValueError(f"Error: input file '{self.file_path}' is empty or corrupt")
+
+'''
+
+Many, Many test cases!
+
+'''
+
+# We are creating isntances of the dealership
+dealership = Dealership("Best Cars in the Galaxy")
+
+# We are creating isntances of employees
+susan = Manager(1, 'Manager', 'Susan Meyers', 32, '1980-08-25', 'AA123456')
+joy = Salesperson(2, 'Salesperson', 'Joy Rogers', 28, '1993-12-03', 'BB987654', susan)
+mark = Salesperson(3, 'Salesperson', 'Mark Jones', 30, '1992-03-16', 'CC123789', susan)
+
+# Adding employees to dealerships
+dealership.add_employee(susan)
+dealership.add_employee(joy)
+dealership.add_employee(mark)
+
+#Instances of Cars
+hatchback1 = Hatchback('Hatchback 1', 1001, 'Audi', 15000, 22, 12000, 50, 'Blue', 25)
+hatchback2 = Hatchback('Hatchback 2', 1002, 'Audi', 16000, 23, 12500, 52, 'Red', 27)
+suv1 = SUV('SUV 1', 2001, 'Bently', 25000, 20000, 70,  'Black', 7, 35, 22)
+suv2 = SUV('SUV 2', 2002, 'Toyota', 24000, 19500, 70,  'White', 6, 30, 12)
+suv3 = SUV('SUV 3', 2003, 'Nova', 26000, 21000, 75,  'Silver', 8, 40, 42)
+sedan1 = Sedan('Sedan 1', 3001, 'Ferari', 20000, 32, 17000,  150, 'Gray')
+sedan2 = Sedan('Sedan 2', 3002, 'Tesla', 21000, 43, 17500, 155, 'Green')
+
+# Adding cars to dealerships
+dealership.add_car(hatchback1)
+dealership.add_car(hatchback2)
+dealership.add_car(suv1)
+dealership.add_car(suv2)
+dealership.add_car(suv3)
+dealership.add_car(sedan1)
+dealership.add_car(sedan2)
+
+print()
+
+# Record sales for Joy
+dealership.record_sale(2, 2001)  # 1 SUV
+dealership.record_sale(2, 1001)  # 2 hatchbacks
+dealership.record_sale(2, 1002)
+dealership.record_sale(2, 3001)  # 2 sedans
+dealership.record_sale(2, 3002)
+
+print()
+
+# Record sales for Mark
+dealership.record_sale(3, 1001)  # 2 hatchbacks
+dealership.record_sale(3, 1002)
+dealership.record_sale(3, 2001)  # 3 SUVs
+dealership.record_sale(3, 2002)
+dealership.record_sale(3, 2003)
+
+print()
+
+# Display commission and sales details
+print(f"{susan.name} Commission: ${susan.calculate_commission()}")
+print(f"{joy.name} Commission: ${joy.calculate_commission()}")
+print(f"{mark.name} Commission: ${mark.calculate_commission()}")
+
+print()
+
+print(dealership.display_employee_sales_details(2))  # Joy sales details
+print(dealership.display_employee_sales_details(3))  # Mark sales details
+
+print()
+# Display car details for a specific car ID
+print(dealership.display_car_details(1001))
+
+# Saving to file using pickle
+file_handler = FileHandler("dealership.pickle")
+file_handler.save_to_file(dealership)
+
+# Load the dealership object from the pickled file and printing it
+loaded_dealership = file_handler.load_from_file()
+print(loaded_dealership)
